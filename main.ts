@@ -25,6 +25,12 @@ if (LINE !== LINE.trim() || LINE.includes("\n") || LINE.includes("\r")) {
 if (/[\u0000-\u001f\u007f]/.test(LINE)) {
   throw new Error("entry must not contain control characters");
 }
+// Printable-ASCII check: git commit messages are conventionally ASCII, and
+// a non-ASCII character that slips past the control-char guard above could
+// confuse git tooling or CI parsers, so reject anything outside 0x20-0x7E.
+if (/[^\x20-\x7e]/.test(LINE)) {
+  throw new Error("entry must contain only printable ASCII characters");
+}
 
 // Write to MAKEFUN_OUTPUT_DIR when set, and to /output as well, so the gate
 // finds the file either way. Dedupe first: when the harness already points
